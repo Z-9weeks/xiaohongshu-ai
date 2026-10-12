@@ -31,8 +31,8 @@
       document.getElementById('result').innerText = '';
 
       try {
-        // 请求我们自己的 Cloudflare 后端接口
-        const res = await fetch('/api/generate', {
+        // 注意：这里是 Netlify 专属的接口地址
+        const res = await fetch('/.netlify/functions/api/generate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
