@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>小红书文案生成器</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background-color: #fafafa; }
+    h1 { color: #333; text-align: center; }
+    input, button { font-size: 16px; padding: 12px; width: 100%; margin: 8px 0; box-sizing: border-box; border-radius: 6px; border: 1px solid #ddd; }
+    button { background: #ff2442; color: white; border: none; cursor: pointer; font-weight: bold; }
+    button:hover { background: #e01f3a; }
+    #result { white-space: pre-wrap; background: #fff; padding: 16px; margin-top: 16px; border-radius: 8px; min-height: 100px; border: 1px solid #eee; color: #333; line-height: 1.6; }
+    #loading { color: #999; margin-top: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>小红书文案生成器</h1>
+  <input id="product" placeholder="输入产品名，比如：美白精华" />
+  <input id="feature" placeholder="输入卖点，比如：平价、学生党、补水" />
+  <button onclick="generate()">生成文案</button>
+  <div id="loading"></div>
+  <div id="result"></div>
+
+  <script>
+    async function generate() {
+      const product = document.getElementById('product').value;
+      const feature = document.getElementById('feature').value;
+      if (!product) return alert('请输入产品名');
+
+      document.getElementById('loading').innerText = '生成中...';
+      document.getElementById('result').innerText = '';
+
+      try {
+        // 请求我们自己的 Cloudflare 后端接口
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ product, feature })
+        });
+
+        const data = await res.json();
+        document.getElementById('loading').innerText = '';
+
+        if (data.error) {
+          document.getElementById('result').innerText = '出错了：' + data.error;
+          return;
+        }
+
+        document.getElementById('result').innerText = data.result;
+      } catch (err) {
+        document.getElementById('loading').innerText = '';
+        document.getElementById('result').innerText = '网络请求失败，请检查网络。';
+      }
+    }
+  </script>
+</body>
+</html>
