@@ -1,13 +1,12 @@
-export default async function handler(req, res) {
-  // Ö»ÔÊĞí POST ÇëÇó
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+export const handler = async (event) => {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
-  const { product, feature } = req.body;
+  const { product, feature } = JSON.parse(event.body);
 
   if (!product) {
-    return res.status(400).json({ error: 'ÇëÊäÈë²úÆ·Ãû' });
+    return { statusCode: 400, body: JSON.stringify({ error: 'è¯·è¾“å…¥äº§å“å' }) };
   }
 
   try {
@@ -15,29 +14,27 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // Key ´Ó»·¾³±äÁ¿¶ÁÈ¡£¬²»ÔÚ´úÂëÀï±©Â¶
         'Authorization': `Bearer ${process.env.SILICONFLOW_API_KEY}`
       },
       body: JSON.stringify({
         model: 'deepseek-ai/DeepSeek-V3',
         messages: [
-          { role: 'system', content: 'ÄãÊÇĞ¡ºìÊé±¬¿îÎÄ°¸Ğ´ÊÖ£¬Êä³ö´øemoji¡¢¿ÚÓï»¯¡¢ÓĞ¹³×ÓµÄÖÖ²İÎÄ°¸£¬300×ÖÒÔÄÚ¡£' },
-          { role: 'user', content: `²úÆ·£º${product}£¬Âôµã£º${feature}` }
+          { role: 'system', content: 'ä½ æ˜¯å°çº¢ä¹¦çˆ†æ¬¾æ–‡æ¡ˆå†™æ‰‹ã€‚åªèƒ½ä½¿ç”¨ç”¨æˆ·æä¾›çš„äº§å“åå’Œå–ç‚¹ä¿¡æ¯ï¼Œç»å¯¹ä¸èƒ½è‡ªå·±ç¼–é€ ç»†èŠ‚ã€‚è¾“å‡ºå¸¦emojiã€å£è¯­åŒ–ã€æœ‰é’©å­çš„ç§è‰æ–‡æ¡ˆï¼Œ300å­—ä»¥å†…ã€‚' },
+          { role: 'user', content: `äº§å“ï¼š${product}ï¼Œå–ç‚¹ï¼š${feature}` }
         ]
       })
     });
 
     const data = await response.json();
-
     if (data.error) {
-      return res.status(500).json({ error: data.error.message });
+      return { statusCode: 500, body: JSON.stringify({ error: data.error.message }) };
     }
 
-    return res.status(200).json({ 
-      result: data.choices[0].message.content 
-    });
-
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ result: data.choices[0].message.content })
+    };
   } catch (err) {
-    return res.status(500).json({ error: 'ÍøÂçÇëÇóÊ§°Ü' });
+    return { statusCode: 500, body: JSON.stringify({ error: 'ç½‘ç»œè¯·æ±‚å¤±è´¥' }) };
   }
-}
+};
